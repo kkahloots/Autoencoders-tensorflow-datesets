@@ -3,7 +3,7 @@ import numpy as np
 from types import FunctionType
 from utils.codes import Models, Losses, Kernels, properties
 
-z_dim = 15
+z_dim = 32
 
 class default_config:
     model_name = Models.AE
@@ -15,7 +15,7 @@ class default_config:
     latent_std = np.ones(z_dim)
 
     num_layers = 3
-    hidden_dim = 100
+    hidden_dim = 500
     l2 = 1e-6
     batch_size = 1000
     batch_norm = True
