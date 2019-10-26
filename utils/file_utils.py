@@ -23,10 +23,8 @@ def save_args(args, exp_name, log_dir, exclude=[]):
 
         np.save(my_file, args[ex])
         del args[ex]
-    try:
-        _save_args(args, exp_name, log_dir)
-    except:
-        print(args)
+
+    _save_args(args, exp_name, log_dir)
 
 def load_args(exp_name, log_dir, include=[]):
     args = _load_args(exp_name, log_dir)
