@@ -69,14 +69,14 @@ class TrainerAE(BaseModel):
 
         load_config = {}
         try:
-            load_config = file_utils.load_args(self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std'])
+            load_config = file_utils.load_args(self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'push_colab'])
             self.config.update(load_config)
             self.config.update({key: config[key] for key in ['kinit', 'bias_init', 'act_out', 'transfer_fct', 'push_colab']})
             print('Loading previous configuration ...')
         except:
             print('Unable to load previous configuration ...')
 
-        file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std'])
+        file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'push_colab'])
 
         if hasattr(self.config, 'height'):
             try:
@@ -179,7 +179,7 @@ class TrainerAE(BaseModel):
 
             if(self.config.restore and self.load(self.session, self.saver) ):
                 load_config = file_utils.load_args(self.config.model_name, self.config.config_dir,
-                                                   ['latent_mean', 'latent_std'])
+                                                   ['latent_mean', 'latent_std', 'push_colab'])
                 self.config.update(load_config)
 
                 num_epochs_trained = self.model_graph.cur_epoch_tensor.eval(self.session)
@@ -270,7 +270,7 @@ class TrainerAE(BaseModel):
         self.save(self.session, self.saver, self.model_graph.global_step_tensor.eval(self.session))
         self.compute_distribution(self.data_train, self.session, self.config.ntrain_batches)
         file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir,
-                             ['latent_mean', 'latent_std'])
+                             ['latent_mean', 'latent_std', 'push_colab'])
         gc.collect()
 
     def compute_distribution(self, images, session, num_batches):
@@ -328,7 +328,7 @@ class TrainerAE(BaseModel):
             self.config.push_colab = self.push_colab
 
         self.config.isBuilt=True
-        file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std'])
+        file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'push_colab'])
 
     def test_graph(self):
         with tf.Session(graph=self.graph) as session:
@@ -338,7 +338,7 @@ class TrainerAE(BaseModel):
 
             if (self.config.restore and self.load(self.session, self.saver)):
                 load_config = file_utils.load_args(self.config.model_name, self.config.config_dir,
-                                                   ['latent_mean', 'latent_std'])
+                                                   ['latent_mean', 'latent_std','push_colab'])
                 self.config.update(load_config)
 
                 num_epochs_trained = self.model_graph.cur_epoch_tensor.eval(self.session)
@@ -362,7 +362,7 @@ class TrainerAE(BaseModel):
 
             if (self.config.restore and self.load(self.session, self.saver)):
                 load_config = file_utils.load_args(self.config.model_name, self.config.config_dir,
-                                                   ['latent_mean', 'latent_std'])
+                                                   ['latent_mean', 'latent_std', 'push_colab'])
                 self.config.update(load_config)
 
                 num_epochs_trained = self.model_graph.cur_epoch_tensor.eval(self.session)

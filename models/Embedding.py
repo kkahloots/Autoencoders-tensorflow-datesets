@@ -72,7 +72,7 @@ class Embedding(BaseModel):
         except:
             print('Unable to load previous configuration ...')
 
-        file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'push_colab')
+        file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'push_colab'])
 
         if hasattr(self.config, 'height'):
             try:
