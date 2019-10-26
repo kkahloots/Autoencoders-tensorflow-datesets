@@ -20,9 +20,11 @@ def _load_args(exp_name, log_dir):
 def save_args(args, exp_name, log_dir, exclude=[]):
     for ex in exclude:
         my_file = log_dir + '/' + 'extra' + '/'+ ex +'.npy'
-
-        np.save(my_file, args[ex])
-        del args[ex]
+        try:
+            np.save(my_file, args[ex])
+            del args[ex]
+        except:
+            pass
 
     try:
         _save_args(args, exp_name, log_dir)
