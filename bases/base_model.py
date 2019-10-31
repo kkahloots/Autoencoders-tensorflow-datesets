@@ -269,7 +269,7 @@ class BaseModel:
         self.zipExperiments()
         self.colab2google()
 
-    def colab2google(self):
+    def google2colab(self):
         from google.colab import auth
         from googleapiclient.http import MediaIoBaseDownload
         from googleapiclient.discovery import build
@@ -293,7 +293,7 @@ class BaseModel:
                 return fh.getvalue()
                 break
 
-    def google2colab(self):
+    def colab2google(self):
         from google.colab import auth
         from googleapiclient.http import MediaFileUpload
         from googleapiclient.discovery import build
