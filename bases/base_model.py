@@ -291,7 +291,7 @@ class BaseModel:
                     status, done = downloader.next_chunk()
                     print("Download %d%%." % int(status.progress() * 100))
                 return fh.getvalue()
-
+        self.upzipExperiments()
 
     def colab2google(self):
         from google.colab import auth
