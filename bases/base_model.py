@@ -259,7 +259,7 @@ class BaseModel:
         zipf.close()
 
 
-    def upzipExperiments(self, file_name):
+    def upzipExperiment(self, file_name):
         import zipfile as zf
         with zf.ZipFile(file_name) as zipf:
             zipf.extractall(path='./')
@@ -289,7 +289,6 @@ class BaseModel:
                 while done is False:
                     status, done = downloader.next_chunk()
                     print("Download %d%%." % int(status.progress() * 100))
-                return fh.getvalue()
                 self.upzipExperiment(file_name)
 
     def colab2google(self):
