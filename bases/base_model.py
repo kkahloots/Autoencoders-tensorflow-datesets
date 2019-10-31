@@ -259,11 +259,10 @@ class BaseModel:
         zipf.close()
 
 
-    def upzipExperiments(self):
+    def upzipExperiments(self, file_name):
         import zipfile as zf
-        with zf.ZipFile(self.config.model_name+'.zip', 'r', zf.ZIP_DEFLATED) as zipf:
-            zipf.extractall(self.experiments_root_dir+'/')
-            zipf.close()
+        with zf.ZipFile(file_name) as zipf:
+            zipf.extractall(path='./')
 
     def push_colab(self):
         self.zipExperiments()
@@ -291,7 +290,7 @@ class BaseModel:
                     status, done = downloader.next_chunk()
                     print("Download %d%%." % int(status.progress() * 100))
                 return fh.getvalue()
-        self.upzipExperiments()
+                self.upzipExperiment(file_name)
 
     def colab2google(self):
         from google.colab import auth
