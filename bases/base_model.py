@@ -279,19 +279,21 @@ class BaseModel:
         #file_path = './'+ file_name
 
         auth.authenticate_user()
+        param = {}
+        param['orderBy'] = 'modifiedDate'
         drive_service = build('drive', 'v3')
-        files = drive_service.files().list().execute()
+        files = drive_service.files().list(**param).execute()
         for f in files['files']:
             print(f['name'])
             if f['name'] == file_name:
-                request = f['mimeType'].files().get_media(fileId=f['id'])
-                fh = io.BytesIO()
+                request = drive_service.files().get_media(fileId=f['id'])
+                fh = io.FileIO(file_name, 'wb')
                 downloader = MediaIoBaseDownload(fh, request)
                 done = False
                 while done is False:
                     status, done = downloader.next_chunk()
                     print("Download %d%%." % int(status.progress() * 100))
-                return fh.getvalue()
+
 
 
     def colab2google(self):
