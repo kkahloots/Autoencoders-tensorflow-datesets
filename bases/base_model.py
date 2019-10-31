@@ -258,11 +258,42 @@ class BaseModel:
         self.zipdir(self.experiments_root_dir+'/', zipf)
         zipf.close()
 
+
+    def upzipExperiments(self):
+        import zipfile as zf
+        with zf.ZipFile(self.config.model_name+'.zip', 'r', zf.ZIP_DEFLATED) as zipf:
+            zipf.extractall(self.experiments_root_dir+'/')
+            zipf.close()
+
     def push_colab(self):
         self.zipExperiments()
         self.colab2google()
 
     def colab2google(self):
+        from google.colab import auth
+        from googleapiclient.http import MediaIoBaseDownload
+        from googleapiclient.discovery import build
+
+        file_name = self.config.model_name+'.zip'
+        print('zip experiments {} ...'.format(file_name))
+        file_path = './'+ file_name
+
+        auth.authenticate_user()
+        drive_service = build('drive', 'v3')
+        files = drive_service.files().list().execute()
+        for f in files['files']:
+            if f['name'] == file_path:
+                request = f['mimeType'].files().get_media(fileId=f['id'])
+                fh = io.BytesIO()
+                downloader = MediaIoBaseDownload(fh, request)
+                done = False
+                while done is False:
+                    status, done = downloader.next_chunk()
+                    print("Download %d%%." % int(status.progress() * 100))
+                return fh.getvalue()
+                break
+
+    def google2colab(self):
         from google.colab import auth
         from googleapiclient.http import MediaFileUpload
         from googleapiclient.discovery import build
@@ -286,4 +317,3 @@ class BaseModel:
                                 resumable=True)
         created = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
         print('File ID: {}'.format(created.get('id')))
-
