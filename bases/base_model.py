@@ -280,9 +280,9 @@ class BaseModel:
 
         auth.authenticate_user()
         param = {}
-        param['orderBy'] = 'modifiedDate'
+        #param['orderBy'] = 'modifiedDate'
         drive_service = build('drive', 'v3')
-        files = drive_service.files().list(**param).execute()
+        files = drive_service.files().list().execute()
         for f in files['files']:
             print(f['name'])
             if f['name'] == file_name:
