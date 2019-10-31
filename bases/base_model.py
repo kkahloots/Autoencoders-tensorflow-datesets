@@ -273,27 +273,24 @@ class BaseModel:
         from google.colab import auth
         from googleapiclient.http import MediaIoBaseDownload
         from googleapiclient.discovery import build
+        import io
 
         file_name = self.config.model_name+'.zip'
-        #print('zip experiments {} ...'.format(file_name))
-        #file_path = './'+ file_name
 
         auth.authenticate_user()
-        param = {}
-        #param['orderBy'] = 'modifiedDate'
         drive_service = build('drive', 'v3')
         files = drive_service.files().list().execute()
         for f in files['files']:
             print(f['name'])
             if f['name'] == file_name:
                 request = drive_service.files().get_media(fileId=f['id'])
-                fh = io.FileIO(file_name, 'wb')
+                fh = io.BytesIO()
                 downloader = MediaIoBaseDownload(fh, request)
                 done = False
                 while done is False:
                     status, done = downloader.next_chunk()
                     print("Download %d%%." % int(status.progress() * 100))
-
+                return fh.getvalue()
 
 
     def colab2google(self):
