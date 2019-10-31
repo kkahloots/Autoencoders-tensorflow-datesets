@@ -154,6 +154,9 @@ class TrainerAE(BaseModel):
         self.config.ntrain_batches = dataset.info.splits['train'].num_examples // self.config.batch_size
         self.config.ntest_batches = dataset.info.splits['test'].num_examples // self.config.batch_size
 
+        if self.config.colab:
+            self.google2colab()
+            
         if not self.config.isBuilt:
             self.config.restore=True
             self.build_model(height, width, num_channels)
