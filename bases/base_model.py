@@ -275,14 +275,15 @@ class BaseModel:
         from googleapiclient.discovery import build
 
         file_name = self.config.model_name+'.zip'
-        print('zip experiments {} ...'.format(file_name))
-        file_path = './'+ file_name
+        #print('zip experiments {} ...'.format(file_name))
+        #file_path = './'+ file_name
 
         auth.authenticate_user()
         drive_service = build('drive', 'v3')
         files = drive_service.files().list().execute()
         for f in files['files']:
-            if f['name'] == file_path:
+            print(f['name'])
+            if f['name'] == file_name:
                 request = f['mimeType'].files().get_media(fileId=f['id'])
                 fh = io.BytesIO()
                 downloader = MediaIoBaseDownload(fh, request)
@@ -291,7 +292,7 @@ class BaseModel:
                     status, done = downloader.next_chunk()
                     print("Download %d%%." % int(status.progress() * 100))
                 return fh.getvalue()
-                break
+
 
     def colab2google(self):
         from google.colab import auth
