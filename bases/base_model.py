@@ -280,8 +280,8 @@ class BaseModel:
         drive_service = build('drive', 'v3')
         files = drive_service.files().list().execute()
         for f in files['files']:
-            print(f['name'])
             if f['name'] == file_name:
+                print('found ', f['name'])
                 request = drive_service.files().get_media(fileId=f['id'])
                 fh = io.BytesIO()
                 downloader = MediaIoBaseDownload(fh, request)
@@ -313,5 +313,9 @@ class BaseModel:
         media = MediaFileUpload(file_path,
                                 mimetype='application/octet-stream',
                                 resumable=True)
-        created = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-        print('File ID: {}'.format(created.get('id')))
+        try:
+            update = drive_service.files().update(body=file_metadata, media_body=media, fields='id').execute()
+            print('File ID: {} was updated'.format(update.get('id')))
+        except:
+            created = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+            print('File ID: {} was created'.format(created.get('id')))

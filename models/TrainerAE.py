@@ -63,6 +63,9 @@ class TrainerAE(BaseModel):
         log_dir_subfolders = ['reconst', 'latent2d', 'latent3d', 'samples', 'total_random', 'pretoss_random', 'interpolate']
         config_dir_subfolders = ['extra']
 
+        if self.config.colab:
+            self.google2colab()
+
         file_utils.create_dirs([self.config.checkpoint_dir, self.config.config_dir, self.config.log_dir])
         file_utils.create_dirs([self.config.log_dir + '/' + dir_ + '/' for dir_ in log_dir_subfolders])
         file_utils.create_dirs([self.config.config_dir + '/' + dir_ + '/' for dir_ in config_dir_subfolders])
@@ -154,9 +157,6 @@ class TrainerAE(BaseModel):
         self.config.ntrain_batches = dataset.info.splits['train'].num_examples // self.config.batch_size
         self.config.ntest_batches = dataset.info.splits['test'].num_examples // self.config.batch_size
 
-        if self.config.colab:
-            self.google2colab()
-            
         if not self.config.isBuilt:
             self.config.restore=True
             self.build_model(height, width, num_channels)
