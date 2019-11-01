@@ -289,6 +289,7 @@ class BaseModel:
                 while done is False:
                     status, done = downloader.next_chunk()
                     print("Download %d%%." % int(status.progress() * 100))
+                fh.close()
                 self.upzipExperiment('./'+file_name)
 
     def colab2google(self):
