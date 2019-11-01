@@ -283,7 +283,7 @@ class BaseModel:
             if f['name'] == file_name:
                 print('found ', f['name'])
                 request = drive_service.files().get_media(fileId=f['id'])
-                fh = io.BytesIO()
+                fh = io.FileIO(file_name, 'wb')
                 downloader = MediaIoBaseDownload(fh, request)
                 done = False
                 while done is False:
