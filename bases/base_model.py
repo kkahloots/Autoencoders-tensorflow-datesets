@@ -266,6 +266,7 @@ class BaseModel:
         with zf.ZipFile(file_name) as zipf:
             print('unzip {} ... '.format(file_name))
             zipf.extractall(path='./')
+            zipf.close()
 
     def push_colab(self):
         self.zipExperiments()
