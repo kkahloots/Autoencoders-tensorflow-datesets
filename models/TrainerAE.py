@@ -53,7 +53,7 @@ class TrainerAE(BaseModel):
 
         if self.config.colab:
             self.google2colab()
-            time.spleep(10)
+            time.sleep(10)
 
         self.latent_data = None
         self.experiments_root_dir = 'experiments'
