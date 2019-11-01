@@ -72,7 +72,7 @@ class TrainerAE(BaseModel):
 
         load_config = {}
         #try:
-        load_config = file_utils.load_args(self.config.model_name, './' + self.config.config_dir, ['latent_mean', 'latent_std', 'samples'])
+        load_config = file_utils.load_args(self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples'])
         self.config.update(load_config)
         self.config.update({key: config[key] for key in ['kinit', 'bias_init', 'act_out', 'transfer_fct']})
         print('Loading previous configuration ...')
