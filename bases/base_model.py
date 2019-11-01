@@ -289,6 +289,7 @@ class BaseModel:
                     print("Download %d%%." % int(status.progress() * 100))
                 fh.close()
                 self.upzipExperiment('./'+file_name)
+                self.config.file_id = f['id']
                 break
 
     def colab2google(self):
