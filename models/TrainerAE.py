@@ -50,7 +50,7 @@ class TrainerAE(BaseModel):
 
             self.config[key] = kwrds[key]
         self.latent_data = None
-        self.experiments_root_dir = 'experiments'
+        self.experiments_root_dir = './experiments'
         file_utils.create_dirs([self.experiments_root_dir])
         self.config.model_name = get_model_name(self.config.graph_type, self.config)
         self.config.checkpoint_dir = os.path.join(self.experiments_root_dir + '/' + self.config.checkpoint_dir + '/',
