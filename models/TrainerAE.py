@@ -15,6 +15,7 @@ from os import listdir
 from os.path import isfile, join
 
 sys.path.append('..')
+import time
 import copy
 import itertools
 import numpy as np
@@ -52,6 +53,7 @@ class TrainerAE(BaseModel):
 
         if self.config.colab:
             self.google2colab()
+            time.spleep(10)
 
         self.latent_data = None
         self.experiments_root_dir = 'experiments'

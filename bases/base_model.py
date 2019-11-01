@@ -266,7 +266,6 @@ class BaseModel:
         with zf.ZipFile(file_name) as zipf:
             print('unzip {} ... '.format(file_name))
             zipf.extractall(path='./')
-            zipf.close()
 
     def push_colab(self):
         self.zipExperiments()
@@ -289,6 +288,7 @@ class BaseModel:
                     status, done = downloader.next_chunk()
                     print("Download %d%%." % int(status.progress() * 100))
                 fh.close()
+
                 self.upzipExperiment('./'+file_name)
                 self.config.file_id = f['id']
                 break
