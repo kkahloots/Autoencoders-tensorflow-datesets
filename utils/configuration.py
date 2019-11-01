@@ -45,7 +45,7 @@ class default_config:
     tolerance = 1e-6
     min_lr = 1e-8
     epsilon = 1e-8
-    save_epoch = 30
+    save_epoch = 25
     colab_save = 30
     seeds = 987654321
 
