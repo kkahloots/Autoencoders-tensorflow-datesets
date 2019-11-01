@@ -49,6 +49,10 @@ class TrainerAE(BaseModel):
                 format(key, self.config.keys())
 
             self.config[key] = kwrds[key]
+
+        if self.config.colab:
+            self.google2colab()
+
         self.latent_data = None
         self.experiments_root_dir = 'experiments'
         file_utils.create_dirs([self.experiments_root_dir])
@@ -63,21 +67,19 @@ class TrainerAE(BaseModel):
         log_dir_subfolders = ['reconst', 'latent2d', 'latent3d', 'samples', 'total_random', 'pretoss_random', 'interpolate']
         config_dir_subfolders = ['extra']
 
-        if self.config.colab:
-            self.google2colab()
 
         file_utils.create_dirs([self.config.checkpoint_dir, self.config.config_dir, self.config.log_dir])
         file_utils.create_dirs([self.config.log_dir + '/' + dir_ + '/' for dir_ in log_dir_subfolders])
         file_utils.create_dirs([self.config.config_dir + '/' + dir_ + '/' for dir_ in config_dir_subfolders])
 
         load_config = {}
-        #try:
-        load_config = file_utils.load_args(self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples'])
+        try:
+            load_config = file_utils.load_args(self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples'])
+            print('Loading previous configuration ...')
+        except:
+            print('Unable to load previous configuration ...')
+
         self.config.update(load_config)
-        self.config.update({key: config[key] for key in ['kinit', 'bias_init', 'act_out', 'transfer_fct']})
-        print('Loading previous configuration ...')
-        #except:
-            #print('Unable to load previous configuration ...')
 
         file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples'])
 
