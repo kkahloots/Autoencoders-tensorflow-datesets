@@ -278,7 +278,6 @@ class BaseModel:
         drive_service = build('drive', 'v3')
         files = drive_service.files().list().execute()
         for f in files['files']:
-            print(f['name'])
             if f['name'] == file_name:
                 print('found ', f['name'])
                 request = drive_service.files().get_media(fileId=f['id'])

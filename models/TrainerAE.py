@@ -49,13 +49,14 @@ class TrainerAE(BaseModel):
 
             self.config[key] = kwrds[key]
 
-        if self.config.colab:
-            self.google2colab()
-
         self.latent_data = None
         self.experiments_root_dir = 'experiments'
         file_utils.create_dirs([self.experiments_root_dir])
         self.config.model_name = get_model_name(self.config.graph_type, self.config)
+
+        if self.config.colab:
+            self.google2colab()
+
         self.config.checkpoint_dir = os.path.join(self.experiments_root_dir + '/' + self.config.checkpoint_dir + '/',
                                                   self.config.model_name)
         self.config.config_dir = os.path.join(self.experiments_root_dir + '/' + self.config.config_dir + '/',
