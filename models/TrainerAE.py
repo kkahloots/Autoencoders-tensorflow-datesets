@@ -71,13 +71,13 @@ class TrainerAE(BaseModel):
         file_utils.create_dirs([self.config.config_dir + '/' + dir_ + '/' for dir_ in config_dir_subfolders])
 
         load_config = {}
-        #try:
-        load_config = file_utils.load_args(self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples'])
-        self.config.update(load_config)
-        self.config.update({key: config[key] for key in ['kinit', 'bias_init', 'act_out', 'transfer_fct']})
-        print('Loading previous configuration ...')
-        #except:
-        #    print('Unable to load previous configuration ...')
+        try:
+            load_config = file_utils.load_args(self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples'])
+            self.config.update(load_config)
+            self.config.update({key: config[key] for key in ['kinit', 'bias_init', 'act_out', 'transfer_fct']})
+            print('Loading previous configuration ...')
+        except:
+            print('Unable to load previous configuration ...')
 
         file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples'])
 
