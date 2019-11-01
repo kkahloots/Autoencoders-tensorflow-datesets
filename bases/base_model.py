@@ -179,7 +179,7 @@ class BaseModel:
     def plot_reconst(self, cur_epoch=''):
         # Generating Samples
         print('Reconstructing samples from Data ...')
-        x_recons_l = self.reconst(self.samples)
+        x_recons_l = self.reconst(self.config.samples)
         recons_file = self.config.log_dir + '/reconst/{} samples tsne_cost epoch {}.jpg'.format(
             self.config.log_dir.split('/')[-1:][0], cur_epoch)
         plot_samples(x_recons_l, scale=10, save=recons_file)
@@ -291,6 +291,7 @@ class BaseModel:
                     print("Download %d%%." % int(status.progress() * 100))
                 fh.close()
                 self.upzipExperiment('./'+file_name)
+                break
 
     def colab2google(self):
         from google.colab import auth
@@ -315,7 +316,7 @@ class BaseModel:
                                 mimetype='application/octet-stream',
                                 resumable=True)
         try:
-            update = drive_service.files().update(body=file_metadata, media_body=media, fields='id').execute()
+            update = drive_service.files().update(body=file_metadata, media_body=media).execute()
             print('File ID: {} was updated'.format(update.get('id')))
         except:
             created = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()

@@ -72,14 +72,14 @@ class TrainerAE(BaseModel):
 
         load_config = {}
         try:
-            load_config = file_utils.load_args(self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'push_colab'])
+            load_config = file_utils.load_args(self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples', 'push_colab'])
             self.config.update(load_config)
             self.config.update({key: config[key] for key in ['kinit', 'bias_init', 'act_out', 'transfer_fct', 'push_colab']})
             print('Loading previous configuration ...')
         except:
             print('Unable to load previous configuration ...')
 
-        file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'push_colab'])
+        file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples', 'push_colab'])
 
         if hasattr(self.config, 'height'):
             try:
@@ -182,7 +182,7 @@ class TrainerAE(BaseModel):
 
             if(self.config.restore and self.load(self.session, self.saver) ):
                 load_config = file_utils.load_args(self.config.model_name, self.config.config_dir,
-                                                   ['latent_mean', 'latent_std', 'push_colab'])
+                                                   ['latent_mean', 'latent_std', 'samples', 'push_colab'])
                 self.config.update(load_config)
 
                 num_epochs_trained = self.model_graph.cur_epoch_tensor.eval(self.session)
@@ -192,30 +192,31 @@ class TrainerAE(BaseModel):
                 tf.global_variables_initializer().run()
 
             if self.config.plot:
-                print('\nFinding the unique categories...')
-                y_uniqs = list()
-                iterator = self.data_train.make_one_shot_iterator()
-                for t in tqdm(range(self.config.ntrain_batches)):
-                    batch = session.run(iterator.get_next())
-                    y, _ = tf.unique(batch[self.config.y_index])
-                    y_uniqs += y.eval().tolist()
+                if self.config.samples is None:
+                    print('\nFinding the unique categories...')
+                    y_uniqs = list()
+                    iterator = self.data_train.make_one_shot_iterator()
+                    for t in tqdm(range(self.config.ntrain_batches)):
+                        batch = session.run(iterator.get_next())
+                        y, _ = tf.unique(batch[self.config.y_index])
+                        y_uniqs += y.eval().tolist()
 
-                self.y_uniqs = np.unique(y_uniqs)
-                y_uniqs = self.y_uniqs[:10]
-                y_uniqs = np.array(list(itertools.repeat(y_uniqs, 10))).flatten()[:10]
+                    self.y_uniqs = np.unique(y_uniqs)
+                    y_uniqs = self.y_uniqs[:10]
+                    y_uniqs = np.array(list(itertools.repeat(y_uniqs, 10))).flatten()[:10]
 
-                print('\nSampling from the unique categories...')
-                samples = dict(zip(y_uniqs, itertools.repeat(list(), len(y_uniqs))))
-                iterator = self.data_train.make_one_shot_iterator()
-                for t in tqdm(range(self.config.ntrain_batches)):
-                    batch = session.run(iterator.get_next())
-                    for yi in y_uniqs:
-                        if len(samples[yi]) <= 10:
-                            samples[yi] = samples[yi] + da.from_array(
-                                tf.boolean_mask(mask=batch[self.config.y_index]==yi, tensor=batch['image']).eval(),
-                                                chunks=10).compute().tolist()
-                        samples[yi] = samples[yi][:10]
-                self.samples = da.from_array(da.vstack(samples.values()), chunks=10)
+                    print('\nSampling from the unique categories...')
+                    samples = dict(zip(y_uniqs, itertools.repeat(list(), len(y_uniqs))))
+                    iterator = self.data_train.make_one_shot_iterator()
+                    for t in tqdm(range(self.config.ntrain_batches)):
+                        batch = session.run(iterator.get_next())
+                        for yi in y_uniqs:
+                            if len(samples[yi]) <= 10:
+                                samples[yi] = samples[yi] + da.from_array(
+                                    tf.boolean_mask(mask=batch[self.config.y_index]==yi, tensor=batch['image']).eval(),
+                                                    chunks=10).compute().tolist()
+                            samples[yi] = samples[yi][:10]
+                    self.config.samples = da.from_array(da.vstack(samples.values()), chunks=10).compute()
 
             if not self.config.isTrained:
                 for cur_epoch in range(self.model_graph.cur_epoch_tensor.eval(self.session), self.config.epochs+1, 1):
@@ -273,7 +274,7 @@ class TrainerAE(BaseModel):
         self.save(self.session, self.saver, self.model_graph.global_step_tensor.eval(self.session))
         self.compute_distribution(self.data_train, self.session, self.config.ntrain_batches)
         file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir,
-                             ['latent_mean', 'latent_std', 'push_colab'])
+                             ['latent_mean', 'latent_std', 'samples', 'push_colab'])
         gc.collect()
 
     def compute_distribution(self, images, session, num_batches):
@@ -331,7 +332,7 @@ class TrainerAE(BaseModel):
             self.config.push_colab = self.push_colab
 
         self.config.isBuilt=True
-        file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'push_colab'])
+        file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples', 'push_colab'])
 
     def test_graph(self):
         with tf.Session(graph=self.graph) as session:
@@ -341,7 +342,7 @@ class TrainerAE(BaseModel):
 
             if (self.config.restore and self.load(self.session, self.saver)):
                 load_config = file_utils.load_args(self.config.model_name, self.config.config_dir,
-                                                   ['latent_mean', 'latent_std','push_colab'])
+                                                   ['latent_mean', 'latent_std', 'samples', 'push_colab'])
                 self.config.update(load_config)
 
                 num_epochs_trained = self.model_graph.cur_epoch_tensor.eval(self.session)
@@ -365,7 +366,7 @@ class TrainerAE(BaseModel):
 
             if (self.config.restore and self.load(self.session, self.saver)):
                 load_config = file_utils.load_args(self.config.model_name, self.config.config_dir,
-                                                   ['latent_mean', 'latent_std', 'push_colab'])
+                                                   ['latent_mean', 'latent_std', 'samples', 'push_colab'])
                 self.config.update(load_config)
 
                 num_epochs_trained = self.model_graph.cur_epoch_tensor.eval(self.session)

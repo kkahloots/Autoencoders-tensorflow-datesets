@@ -13,6 +13,7 @@ class default_config:
     latent_dim = z_dim
     latent_mean = np.zeros(z_dim)
     latent_std = np.ones(z_dim)
+    samples = None
 
     num_layers = 3
     hidden_dim = 500
