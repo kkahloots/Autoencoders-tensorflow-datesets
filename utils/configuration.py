@@ -30,6 +30,7 @@ class default_config:
     y_index = 'label'
     colab = False
     colabpath = ''
+    file_id = None
     early_stopping = True
     log_dir = 'log_dir'
     checkpoint_dir = 'checkpoint_dir'

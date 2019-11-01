@@ -1,6 +1,12 @@
 import gc
 import os
 
+import zipfile as zf
+from google.colab import auth
+from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
+from googleapiclient.discovery import build
+import io
+
 import numpy as np
 import tensorflow as tf
 import dask.array as da
@@ -236,9 +242,7 @@ class BaseModel:
         try:
             return da.vstack(output_l)
         except:
-            output_l = list(map(lambda l: l.reshape(-1, 1), output_l
-                                )
-                            )
+            output_l = list(map(lambda l: l.reshape(-1, 1), output_l))
         return da.vstack(output_l)
 
     ''' 
@@ -253,15 +257,14 @@ class BaseModel:
                 ziph.write(os.path.join(root, file))
 
     def zipExperiments(self):
-        import zipfile as zf
         zipf = zf.ZipFile(self.config.model_name+'.zip', 'w', zf.ZIP_DEFLATED)
         self.zipdir(self.experiments_root_dir+'/', zipf)
         zipf.close()
 
 
     def upzipExperiment(self, file_name):
-        import zipfile as zf
         with zf.ZipFile(file_name) as zipf:
+            print('unzip {} ... '.format(file_name))
             zipf.extractall(path='./')
 
     def push_colab(self):
@@ -269,11 +272,6 @@ class BaseModel:
         self.colab2google()
 
     def google2colab(self):
-        from google.colab import auth
-        from googleapiclient.http import MediaIoBaseDownload
-        from googleapiclient.discovery import build
-        import io
-
         file_name = self.config.model_name+'.zip'
 
         auth.authenticate_user()
@@ -294,30 +292,31 @@ class BaseModel:
                 break
 
     def colab2google(self):
-        from google.colab import auth
-        from googleapiclient.http import MediaFileUpload
-        from googleapiclient.discovery import build
-
-
         file_name = self.config.model_name+'.zip'
         print('zip experiments {} ...'.format(file_name))
         file_path = './'+ file_name
 
         auth.authenticate_user()
         drive_service = build('drive', 'v3')
-
         print('uploading to google drive ...')
-        file_metadata = {
-            'name': file_name,
-            'mimeType': 'application/octet-stream',
-            'parents': [self.config.colabpath]
-        }
-        media = MediaFileUpload(file_path,
-                                mimetype='application/octet-stream',
-                                resumable=True)
+
         try:
-            update = drive_service.files().update(body=file_metadata, media_body=media).execute()
+            # First retrieve the file from the API.
+            file = drive_service.files().get(fileId=self.config.file_id).execute()
+
+            # File's new content.
+            media_body = MediaFileUpload(file_path, mimetype=file['mimeType'], resumable=True)
+
+            # Send the request to the API.
+            update = drive_service.files().update(fileId=self.config.file_id, body=file, media_body=media_body).execute()
             print('File ID: {} was updated'.format(update.get('id')))
         except:
+            file_metadata = {
+                'name': file_name,
+                'mimeType': 'application/octet-stream',
+                'parents': [self.config.colabpath]
+            }
+            media = MediaFileUpload(file_path,mimetype='application/octet-stream', resumable=True)
             created = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
             print('File ID: {} was created'.format(created.get('id')))
+            self.config.file_id = created.get('id')
