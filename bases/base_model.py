@@ -294,56 +294,31 @@ class BaseModel:
                 break
 
     def colab2google(self):
-        from google.colab import auth
-        from googleapiclient.http import MediaFileUpload
-        from googleapiclient.discovery import build
-
-
         file_name = self.config.model_name+'.zip'
         print('zip experiments {} ...'.format(file_name))
         file_path = './'+ file_name
 
         auth.authenticate_user()
         drive_service = build('drive', 'v3')
-
         print('uploading to google drive ...')
-        file_metadata = {
-            'name': file_name,
-            'mimeType': 'application/octet-stream',
-            'parents': [self.config.colabpath]
-        }
-        media = MediaFileUpload(file_path,
-                                mimetype='application/octet-stream',
-                                resumable=True)
-        created = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-        print('File ID: {}'.format(created.get('id')))
 
-    # def colab2google(self):
-    #     file_name = self.config.model_name+'.zip'
-    #     print('zip experiments {} ...'.format(file_name))
-    #     file_path = './'+ file_name
-    #
-    #     auth.authenticate_user()
-    #     drive_service = build('drive', 'v3')
-    #     print('uploading to google drive ...')
-    #
-    #     try:
-    #         # First retrieve the file from the API.
-    #         file = drive_service.files().get(fileId=self.config.file_id).execute()
-    #
-    #         # File's new content.
-    #         media_body = MediaFileUpload(file_path, mimetype=file['mimeType'], resumable=True)
-    #
-    #         # Send the request to the API.
-    #         update = drive_service.files().update(fileId=self.config.file_id, body=file, media_body=media_body).execute()
-    #         print('File ID: {} was updated'.format(update.get('id')))
-    #     except:
-    #         file_metadata = {
-    #             'name': file_name,
-    #             'mimeType': 'application/octet-stream',
-    #             'parents': [self.config.colabpath]
-    #         }
-    #         media = MediaFileUpload(file_path,mimetype='application/octet-stream', resumable=True)
-    #         created = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-    #         print('File ID: {} was created'.format(created.get('id')))
-    #         self.config.file_id = created.get('id')
+        try:
+            # First retrieve the file from the API.
+            file = drive_service.files().get(fileId=self.config.file_id).execute()
+
+            # File's new content.
+            media_body = MediaFileUpload(file_path, mimetype=file['mimeType'], resumable=True)
+
+            # Send the request to the API.
+            update = drive_service.files().update(fileId=self.config.file_id, body=file, media_body=media_body).execute()
+            print('File ID: {} was updated'.format(update.get('id')))
+        except:
+            file_metadata = {
+                'name': file_name,
+                'mimeType': 'application/octet-stream',
+                'parents': [self.config.colabpath]
+            }
+            media = MediaFileUpload(file_path,mimetype='application/octet-stream', resumable=True)
+            created = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+            print('File ID: {} was created'.format(created.get('id')))
+            self.config.file_id = created.get('id')
