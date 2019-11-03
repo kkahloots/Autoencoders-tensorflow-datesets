@@ -282,7 +282,7 @@ class BaseModel:
         drivefile = None
         # View all folders and file in your Google Drive
         try:
-            fileList = drive.ListFile({'q': "trashed=false and title={}'".format(file_name), 'orderBy': 'modifiedDate'}).GetList()
+            fileList = drive.ListFile({'q': "trashed=false and title='{}'".format(file_name), 'orderBy': 'modifiedDate'}).GetList()
             drivefile = None if fileList==[] else fileList[0]
         except:
             pass
