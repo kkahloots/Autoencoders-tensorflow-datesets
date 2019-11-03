@@ -162,7 +162,6 @@ class TrainerAE(BaseModel):
         if not self.config.isBuilt:
             self.config.restore=True
             self.build_model(height, width, num_channels)
-            self.build_model(height, width, num_channels)
         else:
             assert (self.config.height == height) and (self.config.width == width) and \
                    (num_channels == num_channels), \
@@ -324,17 +323,7 @@ class TrainerAE(BaseModel):
             print('\nNumber of trainable paramters', self.trainable_count)
             self.test_graph()
 
-        '''  
-        -------------------------------------------------------------------------------
-                        GOOGLE COLAB 
-        -------------------------------------------------------------------------------------
-         '''
-        if self.config.colab:
-            self.push_colab()
-            self.config.push_colab = self.push_colab
-
         self.config.isBuilt=True
-        file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples'])
 
     def test_graph(self):
         with tf.Session(graph=self.graph) as session:
