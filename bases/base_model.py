@@ -293,13 +293,18 @@ class BaseModel:
             drivefile = drive.CreateFile({'title': file_name, \
                                           'parents': [{'kind': 'drive#parentReference', 'id': self.config.colabpath}]})
 
+            return drivefile, 'new'
         else:
             print('Found in Google Drive ... ')
+            return drivefile, 'old'
 
-        return  drivefile
+
 
     def google2colab(self):
-        drivefile = self.get_drivefile()
+        drivefile, stat = self.get_drivefile()
+
+        if stat == 'new':
+            return
 
         drivefile.GetContentFile(drivefile['title'])
         print('Found in Google Drive ... ')
@@ -310,7 +315,7 @@ class BaseModel:
         print('zip experiments {} ...'.format(file_name))
         file_path = './'+ file_name
 
-        drivefile = self.get_drivefile()
+        drivefile, _ = self.get_drivefile()
         drivefile.SetContentFile(file_path)
         drivefile.Upload()
         print('file Uploaded in Google Drive ... ')
