@@ -71,8 +71,8 @@ class default_config:
 #
 # ####### BayesianVAE
 # #Monte Carlo sampling
-    ntrain_batches = 1000
-    ntest_batches = 1000
+    ntrain_batches = None
+    ntest_batches = None
     MC_samples = 10
 #
 # # Embedding configuration

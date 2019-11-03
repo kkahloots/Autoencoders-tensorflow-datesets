@@ -307,7 +307,6 @@ class BaseModel:
             return
 
         drivefile.GetContentFile(drivefile['title'])
-        print('Found in Google Drive ... ')
         self.upzipExperiment('./' + drivefile['title'])
 
     def colab2google(self):
