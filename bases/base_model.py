@@ -279,10 +279,13 @@ class BaseModel:
         gauth = GoogleAuth()
         gauth.credentials = GoogleCredentials.get_application_default()
         drive = GoogleDrive(gauth)
-
+        drivefile = None
         # View all folders and file in your Google Drive
-        fileList = drive.ListFile({'q': "trashed=false and title={}'".format(file_name), 'orderBy': 'modifiedDate'}).GetList()
-        drivefile = None if fileList==[] else fileList[0]
+        try:
+            fileList = drive.ListFile({'q': "trashed=false and title={}'".format(file_name), 'orderBy': 'modifiedDate'}).GetList()
+            drivefile = None if fileList==[] else fileList[0]
+        except:
+            pass
 
         if drivefile is None:
             print('No previous file found in Google Drive')
