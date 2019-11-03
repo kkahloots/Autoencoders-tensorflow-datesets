@@ -282,31 +282,10 @@ class BaseModel:
 
         # View all folders and file in your Google Drive
         fileList = drive.ListFile({'q': "trashed=false and title={}'".format(file_name), 'orderBy': 'modifiedDate'}).GetList()
-        return None if fileList==[] else fileList[0]
+        drivefile = None if fileList==[] else fileList[0]
 
-
-    def google2colab(self):
-        drivefile = self.get_drivefile()
         if drivefile is None:
             print('No previous file found in Google Drive')
-        else:
-            drivefile.GetContentFile(drivefile['title'])
-            print('Found in Google Drive ... ')
-            self.upzipExperiment('./' + drivefile['title'])
-
-
-    def colab2google(self):
-        file_name = self.config.model_name+'.zip'
-        print('zip experiments {} ...'.format(file_name))
-        file_path = './'+ file_name
-
-        drivefile = self.get_drivefile()
-        if drivefile is None:
-            print('No previous file found in Google Drive')
-            auth.authenticate_user()
-            gauth = GoogleAuth()
-            gauth.credentials = GoogleCredentials.get_application_default()
-            drive = GoogleDrive(gauth)
             print('Create file in Google Drive')
             drivefile = drive.CreateFile({'title': file_name, \
                                           'parents': [{'kind': 'drive#parentReference', 'id': self.config.colabpath}]})
@@ -314,6 +293,21 @@ class BaseModel:
         else:
             print('Found in Google Drive ... ')
 
+         return  drivefile
+
+    def google2colab(self):
+        drivefile = self.get_drivefile()
+
+        drivefile.GetContentFile(drivefile['title'])
+        print('Found in Google Drive ... ')
+        self.upzipExperiment('./' + drivefile['title'])
+
+    def colab2google(self):
+        file_name = self.config.model_name+'.zip'
+        print('zip experiments {} ...'.format(file_name))
+        file_path = './'+ file_name
+
+        drivefile = self.get_drivefile()
         drivefile.SetContentFile(file_path)
         drivefile.Upload()
         print('file Uploaded in Google Drive ... ')
