@@ -30,7 +30,6 @@ class default_config:
     y_index = 'label'
     colab = False
     colabpath = ''
-    file_id = None
     early_stopping = True
     log_dir = 'log_dir'
     checkpoint_dir = 'checkpoint_dir'
@@ -47,8 +46,8 @@ class default_config:
     tolerance = 1e-6
     min_lr = 1e-8
     epsilon = 1e-8
-    save_epoch = 25
-    colab_save = 30
+    save_epoch = 5
+    colab_save = 5
     seeds = 987654321
 
 #

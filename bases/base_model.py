@@ -2,10 +2,11 @@ import gc
 import os
 
 import zipfile as zf
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
 from google.colab import auth
-from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
-from googleapiclient.discovery import build
-import io
+from oauth2client.client import GoogleCredentials
+
 
 import numpy as np
 import tensorflow as tf
@@ -271,54 +272,48 @@ class BaseModel:
         self.zipExperiments()
         self.colab2google()
 
-    def google2colab(self):
+    def get_drivefile(self):
         file_name = self.config.model_name+'.zip'
 
         auth.authenticate_user()
-        drive_service = build('drive', 'v3')
-        files = drive_service.files().list().execute()
-        for f in files['files']:
-            if f['name'] == file_name:
-                print('found ', f['name'])
-                request = drive_service.files().get_media(fileId=f['id'])
-                fh = io.FileIO(file_name, 'wb')
-                downloader = MediaIoBaseDownload(fh, request)
-                done = False
-                while done is False:
-                    status, done = downloader.next_chunk()
-                    print("Download %d%%." % int(status.progress() * 100))
-                fh.close()
+        gauth = GoogleAuth()
+        gauth.credentials = GoogleCredentials.get_application_default()
+        drive = GoogleDrive(gauth)
 
-                self.upzipExperiment('./'+file_name)
-                self.config.file_id = f['id']
-                break
+        # View all folders and file in your Google Drive
+        fileList = drive.ListFile({'q': "trashed=false and title={}'".format(file_name), 'orderBy': 'modifiedDate'}).GetList()
+        return None if fileList==[] else fileList[0]
+
+
+    def google2colab(self):
+        drivefile = self.get_drivefile()
+        if drivefile is None:
+            print('No previous file found in Google Drive')
+        else:
+            drivefile.GetContentFile(drivefile['title'])
+            print('Found in Google Drive ... ')
+            self.upzipExperiment('./' + drivefile['title'])
+
 
     def colab2google(self):
         file_name = self.config.model_name+'.zip'
         print('zip experiments {} ...'.format(file_name))
         file_path = './'+ file_name
 
-        auth.authenticate_user()
-        drive_service = build('drive', 'v3')
-        print('uploading to google drive ...')
+        drivefile = self.get_drivefile()
+        if drivefile is None:
+            print('No previous file found in Google Drive')
+            auth.authenticate_user()
+            gauth = GoogleAuth()
+            gauth.credentials = GoogleCredentials.get_application_default()
+            drive = GoogleDrive(gauth)
+            print('Create file in Google Drive')
+            drivefile = drive.CreateFile({'title': file_name, \
+                                          'parents': [{'kind': 'drive#parentReference', 'id': self.config.colabpath}]})
 
-        try:
-            # First retrieve the file from the API.
-            file = drive_service.files().get(fileId=self.config.file_id).execute()
+        else:
+            print('Found in Google Drive ... ')
 
-            # File's new content.
-            media_body = MediaFileUpload(file_path, mimetype=file['mimeType'], resumable=True)
-
-            # Send the request to the API.
-            update = drive_service.files().update(fileId=self.config.file_id, body=file, media_body=media_body).execute()
-            print('File ID: {} was updated'.format(update.get('id')))
-        except:
-            file_metadata = {
-                'name': file_name,
-                'mimeType': 'application/octet-stream',
-                'parents': [self.config.colabpath]
-            }
-            media = MediaFileUpload(file_path,mimetype='application/octet-stream', resumable=True)
-            created = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-            print('File ID: {} was created'.format(created.get('id')))
-            self.config.file_id = created.get('id')
+        drivefile.SetContentFile(file_path)
+        drivefile.Upload()
+        print('file Uploaded in Google Drive ... ')
