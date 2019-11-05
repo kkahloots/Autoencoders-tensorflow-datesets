@@ -78,7 +78,7 @@ class DIPgaussVAEGraph(BaseGraph):
             
         print('\n[*] Defining decoder...')
         with tf.variable_scope('decoder_mean', reuse=self.config.reuse):
-            Px_latent_mean = self.create_decoder(input_=self.config.latent_batch,
+            Px_latent_mean = self.create_decoder(input_=self.latent_batch,
                                             hidden_dim=self.config.hidden_dim,
                                             output_dim=self.x_flat_dim,
                                             num_layers=self.config.num_layers,

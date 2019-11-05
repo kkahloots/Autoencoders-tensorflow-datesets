@@ -129,7 +129,7 @@ class BayBVAEGraph(BaseGraph):
         with tf.variable_scope('decoder_mean', reuse=self.config.reuse):
             Px_latent_mean = self.create_decoder(input_=self.latent_batch,
                                             hidden_dim=self.config.hidden_dim,
-                                            output_dim=self.config.x_flat_dim,
+                                            output_dim=self.x_flat_dim,
                                             num_layers=self.config.num_layers,
                                             transfer_fct=self.config.transfer_fct,
                                             act_out=tf.nn.sigmoid,
