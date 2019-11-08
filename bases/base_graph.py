@@ -94,6 +94,10 @@ class BaseGraph:
                                                                                                             dtype=tf.float32)))
             random_latent = da.hstack(random_latent)
         else:
+            try:
+                random_latent = random_latent.compute()
+            except:
+                pass
             for m, sig, sc, ic in zip(self.config.latent_mean, self.config.latent_std, std_scales, range(random_latent.shape[0])):
                 random_latent[:, ic] =  m + (sc* np.sqrt(sig) * random_latent[:, ic])
 
