@@ -74,13 +74,13 @@ class TrainerAE(BaseModel):
 
         load_config = {}
         try:
-            load_config = file_utils.load_args(self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples'])
+            load_config = file_utils.load_args(self.config.model_name, self.config.config_dir, ['latent_mean', 'latent_std', 'samples', 'y_uniqs'])
             self.config.update(load_config)
             print('Loading previous configuration ...')
         except:
             print('Unable to load previous configuration ...')
             file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir,
-                                 ['latent_mean', 'latent_std', 'samples'])
+                                 ['latent_mean', 'latent_std', 'samples', 'y_uniqs'])
 
 
         if hasattr(self.config, 'height'):
@@ -183,7 +183,7 @@ class TrainerAE(BaseModel):
 
             if(self.config.restore and self.load(self.session, self.saver) ):
                 load_config = file_utils.load_args(self.config.model_name, self.config.config_dir,
-                                                   ['latent_mean', 'latent_std', 'samples'])
+                                                   ['latent_mean', 'latent_std', 'samples', 'y_uniqs'])
                 self.config.update(load_config)
 
                 num_epochs_trained = self.model_graph.cur_epoch_tensor.eval(self.session)
@@ -193,7 +193,7 @@ class TrainerAE(BaseModel):
                 tf.global_variables_initializer().run()
 
             if self.config.plot:
-                if self.config.samples is None:
+                if self.config.y_uniqs is None:
                     print('\nFinding the unique categories...')
                     y_uniqs = list()
                     iterator = self.data_train.make_one_shot_iterator()
@@ -202,8 +202,10 @@ class TrainerAE(BaseModel):
                         y, _ = tf.unique(batch[self.config.y_index])
                         y_uniqs += y.eval().tolist()
 
-                    self.y_uniqs = np.unique(y_uniqs)
-                    y_uniqs = self.y_uniqs[:10]
+                    self.config.y_uniqs = np.unique(y_uniqs)
+
+                if self.config.samples is None:
+                    y_uniqs = self.config.y_uniqs[:10]
                     y_uniqs = np.array(list(itertools.repeat(y_uniqs, 10))).flatten()[:10]
 
                     print('\nSampling from the unique categories...')
@@ -275,7 +277,7 @@ class TrainerAE(BaseModel):
         self.save(self.session, self.saver, self.model_graph.global_step_tensor.eval(self.session))
         self.compute_distribution(self.data_train, self.session, self.config.ntrain_batches)
         file_utils.save_args(self.config.dict(), self.config.model_name, self.config.config_dir,
-                             ['latent_mean', 'latent_std', 'samples'])
+                             ['latent_mean', 'latent_std', 'samples', 'y_uniqs'])
         gc.collect()
 
     def compute_distribution(self, images, session, num_batches):
@@ -333,7 +335,7 @@ class TrainerAE(BaseModel):
 
             if (self.config.restore and self.load(self.session, self.saver)):
                 load_config = file_utils.load_args(self.config.model_name, self.config.config_dir,
-                                                   ['latent_mean', 'latent_std', 'samples'])
+                                                   ['latent_mean', 'latent_std', 'samples', 'y_uniqs'])
                 self.config.update(load_config)
 
                 num_epochs_trained = self.model_graph.cur_epoch_tensor.eval(self.session)
@@ -357,7 +359,7 @@ class TrainerAE(BaseModel):
 
             if (self.config.restore and self.load(self.session, self.saver)):
                 load_config = file_utils.load_args(self.config.model_name, self.config.config_dir,
-                                                   ['latent_mean', 'latent_std', 'samples'])
+                                                   ['latent_mean', 'latent_std', 'samples', 'y_uniqs'])
                 self.config.update(load_config)
 
                 num_epochs_trained = self.model_graph.cur_epoch_tensor.eval(self.session)

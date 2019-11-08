@@ -91,7 +91,7 @@ class BaseGraph:
             random_latent = list()
             for m, sig, sc in zip(self.config.latent_mean, self.config.latent_std, std_scales):
                 random_latent.append(session.run(tf.random_normal((self.config.batch_size, 1), m, sc * sig,
-                                                                                                            dtype=tf.float32)))
+                                                                                dtype=tf.float32)))
             random_latent = da.hstack(random_latent)
         else:
             try:
