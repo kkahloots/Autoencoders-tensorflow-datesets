@@ -150,8 +150,11 @@ class TrainerAE(BaseModel):
                == "tensorflow_datasets.image", 'The dataset type is not image tensorflow_datasets'
 
         self.data_train = dataset.as_dataset(split=tfds.Split.TRAIN, shuffle_files=True, batch_size=self.config.batch_size)
-        self.data_test = dataset.as_dataset(split=tfds.Split.TEST, shuffle_files=True, batch_size=self.config.batch_size)
-
+        try:
+            self.data_test = dataset.as_dataset(split=tfds.Split.TEST, shuffle_files=True, batch_size=self.config.batch_size)
+        except:
+            self.data_test = dataset.as_dataset(split=tfds.Split.TRAIN, shuffle_files=True, batch_size=self.config.batch_size)
+            
         width = dataset.info.features['image'].shape[0]
         height = dataset.info.features['image'].shape[1]
         num_channels  = dataset.info.features['image'].shape[2]
