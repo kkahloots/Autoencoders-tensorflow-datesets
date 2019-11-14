@@ -158,7 +158,7 @@ class BayAEGraph(BaseGraph):
                                                           self.prior_mean, self.prior_var,
                                                           self.config.prior_div_cost)
 
-            self.bayae_loss = tf.add(tf.cast(self.config.num_batches, 'float32') * self.ae_loss, self.bay_div, name='bayae_loss')
+            self.bayae_loss = tf.add(tf.cast(self.config.ntrain_batches, 'float32') * self.ae_loss, self.bay_div, name='bayae_loss')
 
         with tf.variable_scope("optimizer" ,reuse=self.config.reuse):
             self.optimizer = RAdamOptimizer(self.lr)

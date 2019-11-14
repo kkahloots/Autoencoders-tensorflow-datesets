@@ -157,7 +157,7 @@ class AnnBayAEGraph(BaseGraph):
                 self.bay_div = -1 * losses.get_divergence(self.post_mean, self.post_var, \
                                                       self.prior_mean, self.prior_var,
                                                       self.config.prior_div_cost)
-            self.bayae_loss = tf.add(tf.cast(self.config.num_batches, 'float32') * self.ae_loss, self.bay_div,
+            self.bayae_loss = tf.add(tf.cast(self.config.ntrain_batches, 'float32') * self.ae_loss, self.bay_div,
                                      name='bayae_loss')
 
         with tf.variable_scope('annae_loss', reuse=self.config.reuse):
@@ -166,7 +166,7 @@ class AnnBayAEGraph(BaseGraph):
             self.annae_loss = tf.add(self.ae_loss, self.anneal_reg)
 
 
-        self.ann_bayae_loss = tf.add(tf.cast(self.config.num_batches, 'float32') * self.ae_loss, self.anneal_reg, name='ann_bayae_loss')
+        self.ann_bayae_loss = tf.add(tf.cast(self.config.ntrain_batches, 'float32') * self.ae_loss, self.anneal_reg, name='ann_bayae_loss')
 
 
         with tf.variable_scope("optimizer" ,reuse=self.config.reuse):

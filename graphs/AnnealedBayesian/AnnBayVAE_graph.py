@@ -187,9 +187,9 @@ class AnnBayVAEGraph(BaseGraph):
                 self.bay_div = -1 * losses.get_divergence(self.encoder_mean, self.encoder_var, \
                                                           self.prior_mean, self.prior_var,
                                                           self.config.prior_div_cost)
-            self.bayae_loss = tf.add(tf.cast(self.config.num_batches, 'float32') * self.ae_loss, self.bay_div, name='bayae_loss')
-            self.bayvae_loss = tf.add(tf.cast(self.config.num_batches, 'float32') * self.vae_loss, self.bay_div, name='bayvae_loss')
-            self.annbayvae_loss = tf.add(tf.cast(self.config.num_batches, 'float32') * self.annvae_loss, self.bay_div,
+            self.bayae_loss = tf.add(tf.cast(self.config.ntrain_batches, 'float32') * self.ae_loss, self.bay_div, name='bayae_loss')
+            self.bayvae_loss = tf.add(tf.cast(self.config.ntrain_batches, 'float32') * self.vae_loss, self.bay_div, name='bayvae_loss')
+            self.annbayvae_loss = tf.add(tf.cast(self.config.ntrain_batches, 'float32') * self.annvae_loss, self.bay_div,
                                       name='bayvae_loss')
 
         with tf.variable_scope('optimizer', reuse=self.config.reuse):
