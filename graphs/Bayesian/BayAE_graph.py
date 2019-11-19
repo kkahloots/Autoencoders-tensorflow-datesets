@@ -150,13 +150,13 @@ class BayAEGraph(BaseGraph):
 
         with tf.variable_scope('bayae_loss', reuse=self.config.reuse):
             if self.config.isConv:
-                self.bay_div = -1 * losses.get_divergence(self.post_mean, self.post_var, \
+                self.bay_div = -1 * tf.reduce_mean(losses.get_divergence(self.post_mean, self.post_var, \
                                                       tf.reshape(self.prior_mean, [self.config.MC_samples, self.config.batch_size, self.config.latent_dim]), tf.reshape(self.prior_var, [self.config.MC_samples, self.config.batch_size, self.config.latent_dim]),
-                                                      self.config.prior_div_cost)
+                                                      self.config.prior_div_cost))
             else:
-                self.bay_div = -1 * losses.get_divergence(self.post_mean, self.post_var, \
+                self.bay_div = -1 * tf.reduce_mean(losses.get_divergence(self.post_mean, self.post_var, \
                                                           self.prior_mean, self.prior_var,
-                                                          self.config.prior_div_cost)
+                                                          self.config.prior_div_cost))
 
             self.bayae_loss = tf.add(tf.cast(self.config.ntrain_batches, 'float32') * self.ae_loss, self.bay_div, name='bayae_loss')
 
