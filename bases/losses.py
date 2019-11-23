@@ -32,6 +32,24 @@ def get_self_divergence(meanQ, log_varQ, loss_func):
     log_varP = P.variance()
     return get_divergence(meanQ, log_varQ, meanP, log_varP, loss_func)
 
+def get_QP_kl(meanQ, log_varQ, meanP, log_varP):
+    """
+    KL[Q || P] returns the KL-divergence between the prior p and the variational posterior q.
+    :param meanQ: vector of means for q
+    :param log_varQ: vector of log-variances for q
+    :param meanP: vector of means for p
+    :param log_varP: vector of log-variances for p
+    :return: KL divergence between q and p
+    """
+    #meanQ = posterior_mean
+    #log_varQ = posterior_logvar
+    #meanP = prior_mean
+    #log_varP = prior_logvar
+
+    return - 0.5 * tf.reduce_sum(
+        log_varP - log_varQ + (tf.square(meanQ - meanP) / tf.exp(log_varP)) + tf.exp(log_varQ - log_varP) - 1)
+
+
 
 def get_divergence(meanQ, log_varQ, meanP, log_varP, div_loss):
     assert div_loss in codes.properties(codes.Losses)\
